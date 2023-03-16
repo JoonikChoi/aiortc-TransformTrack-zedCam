@@ -50,71 +50,21 @@ if __name__ == "__main__":
     viewer = gl.GLViewer()
     viewer.init(len(sys.argv), sys.argv, camera_model, res)
 
-    point_cloud = sl.Mat(res.width, res.height, sl.MAT_TYPE.F32_C4, sl.MEM.CPU)
     depth_image = sl.Mat(res.width, res.height)
 
     cv2.namedWindow("Grayscale Depth", cv2.WINDOW_NORMAL)
 
     while viewer.is_available():
         if zed.grab() == sl.ERROR_CODE.SUCCESS:
-            #zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA,sl.MEM.CPU, res)
-            #viewer.updateData(point_cloud)
-            zed.retrieve_image(depth_image, sl.VIEW.LEFT,sl.MEM.CPU, res)
+            #zed.retrieve_measure(depth_image, sl.MEASURE.DEPTH) # 방법 1 : 32bit 값의 depth array
+            zed.retrieve_image(depth_image, sl.VIEW.DEPTH, sl.MEM.CPU, res) # 방법 2 : depth array를 8bit gray scale map으로 변환
+
             depth_array = depth_image.get_data()
-            
+            print(depth_array.shape)
+                        
             #viewer.updateData(depth_image)
 
             cv2.imshow("Grayscale Depth", depth_array)
 
     viewer.exit()
-    zed.close()
-
-def startZED():
-    print('start zed camera')
-    init = sl.InitParameters(camera_resolution=sl.RESOLUTION.HD720,
-                                 depth_mode=sl.DEPTH_MODE.ULTRA,
-                                 coordinate_units=sl.UNIT.METER,
-                                 coordinate_system=sl.COORDINATE_SYSTEM.RIGHT_HANDED_Y_UP)
-    zed = sl.Camera()
-    status = zed.open(init)
-    if status != sl.ERROR_CODE.SUCCESS:
-        print(repr(status))
-        exit()
-    
-    return zed
-    
-
-def extractZED(zed):
-    print('extract the zed frame')
-
-    res = sl.Resolution()
-    res.width = 720
-    res.height = 404
-
-    camera_model = zed.get_camera_information().camera_model
-
-    point_cloud = sl.Mat(res.width, res.height, sl.MAT_TYPE.F32_C4, sl.MEM.CPU)
-    depth_image = sl.Mat(res.width, res.height)
-
-    cv2.namedWindow("Grayscale Depth", cv2.WINDOW_NORMAL)
-    zed.retrieve_image(depth_image, sl.VIEW.LEFT,sl.MEM.CPU, res)
-    depth_array = depth_image.get_data()
-
-    return depth_array
-
-    while viewer.is_available():
-        if zed.grab() == sl.ERROR_CODE.SUCCESS:
-            #zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA,sl.MEM.CPU, res)
-            #viewer.updateData(point_cloud)
-            zed.retrieve_image(depth_image, sl.VIEW.LEFT,sl.MEM.CPU, res)
-            depth_array = depth_image.get_data()
-            
-            #viewer.updateData(depth_image)
-
-            cv2.imshow("Grayscale Depth", depth_array)
-
-    viewer.exit()
-    zed.close()
-
-def closeZED(zed):
     zed.close()

@@ -49,6 +49,7 @@ def extractFrame(viewer, zed, res):
             zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA,sl.MEM.CPU, res)
             zed.retrieve_image(rgb_image, sl.VIEW.LEFT,sl.MEM.CPU, res)
             rgb_array = rgb_image.get_data()
+            
 
             err, point_cloud_value = point_cloud.get_value(x, y)
             tmp = point_cloud.get_data(sl.MEM.CPU, False)
